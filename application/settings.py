@@ -3,7 +3,6 @@ from PIL import ImageTk
 FONT = 'Ubuntu'
 TITLE_SIZE = 20
 TEXT_SIZE = 12
-INDIGO = '#6062D6'
 
 def stretch_image(image, image_ratio, canvas, event):
     global resized_tk

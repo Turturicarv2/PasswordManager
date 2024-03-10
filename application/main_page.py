@@ -3,6 +3,7 @@ import ttkbootstrap as ttk
 from settings import *
 from PIL import Image
 from login_page import login_page
+from signup_page import signup_page
 
 class App(ttk.Window):
     def __init__(self):
@@ -10,7 +11,6 @@ class App(ttk.Window):
         # setup
         super().__init__(themename='lumen')
         self.title('Welcome!')
-        self.geometry('800x600')
         self.minsize(width=800, height=400)
 
         # layout
@@ -36,8 +36,8 @@ class App(ttk.Window):
         
         login_frame = ttk.Frame(self)
         ttk.Label(login_frame, text='Welcome! Would you like to sign in?', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
-        login_button = ttk.Button(login_frame, text='Sign in', command=self.open_login_page).pack(pady = 10)
-        ttk.Button(login_frame, text='Sign up').pack(pady = 10)
+        ttk.Button(login_frame, text='Sign in', command=self.open_login_page).pack(pady = 10)
+        ttk.Button(login_frame, text='Sign up', command=self.open_signup_page).pack(pady = 10)
         ttk.Label(login_frame, text=app_description, font=(FONT, TEXT_SIZE), bootstyle = 'INFO', wraplength=250, justify="center").pack(pady = 70)
 
         self.canvas = tk.Canvas(self, bd = 0, highlightthickness=0, relief = 'ridge')
@@ -48,6 +48,10 @@ class App(ttk.Window):
     def open_login_page(self):
         self.withdraw()
         login_page(self)
+
+    def open_signup_page(self):
+        self.withdraw()
+        signup_page(self)
 
 if __name__ == '__main__':
     App()

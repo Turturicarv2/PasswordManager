@@ -5,13 +5,13 @@ from PIL import Image
 
 
 
-class login_page(ttk.Toplevel):
+class signup_page(ttk.Toplevel):
     def __init__(self, main_window):
 
         # setup
         self.main_window = main_window
         super().__init__()
-        self.title('Sign in')
+        self.title('Sign up')
         self.geometry('800x600')
         self.minsize(width=800, height=400)
 
@@ -20,7 +20,7 @@ class login_page(ttk.Toplevel):
         self.rowconfigure(0, weight = 1)
 
         # create image
-        self.image = Image.open('images/login_image.jpg')
+        self.image = Image.open('images/signup_image.jpg')
         self.image_ratio = self.image.size[0] / self.image.size[1]
 
         # create widgets
@@ -35,8 +35,12 @@ class login_page(ttk.Toplevel):
     
     def create_widgets(self):
         login_frame = ttk.Frame(self)
+        ttk.Label(login_frame, text='Email:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
+        ttk.Entry(login_frame, bootstyle = 'PRIMARY').pack(pady = 5)
         ttk.Label(login_frame, text='Username:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
         ttk.Entry(login_frame, bootstyle = 'PRIMARY').pack(pady = 5)
+        ttk.Label(login_frame, text='Password:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
+        ttk.Entry(login_frame, show='*', bootstyle = 'PRIMARY').pack(pady = 5)
         ttk.Label(login_frame, text='Password:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
         ttk.Entry(login_frame, show='*', bootstyle = 'PRIMARY').pack(pady = 5)
         ttk.Button(login_frame, text='Log in').pack(pady = 20)
@@ -53,6 +57,6 @@ class login_page(ttk.Toplevel):
         self.destroy()
         self.update()
         self.main_window.deiconify()
-        
+      
     def close_app(self):
         self.main_window.destroy()
