@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, Response, render_template, jsonify
+from flask import Flask, Response, render_template, jsonify, request
 from flask_cors import CORS
 
 from . import db
@@ -19,19 +19,9 @@ def create_app(test_config=None):
     def home():
         return 'Hello! Check the extension!'
     
-    @app.route('/test_insert/')
-    def test_insert():
-        db.execute_sql_from_file('insert.sql')
-        return 'Inserted!'
-
-    @app.route('/test_select/')
-    def test_select():
-        result = db.execute_sql_from_file('select.sql')
-        return render_template('select.html', result=result)
-    
     @app.route('/get_data/')
     def get_data():
-        result = db.execute_sql_from_file('select.sql')
+        result = db.execute_sql_from_file('db_operations/select.sql')
         return jsonify(result=result)
     
     @app.route('/store_pwd/<path>/')
@@ -43,7 +33,22 @@ def create_app(test_config=None):
     def return_pwd(path):
         result = db.execute_sql_select_pwd(path=path)
         return jsonify(result=result)
+    
+    @app.route('/create_user/', method = 'POST')
+    def create_user():
+        username = request.form('user')
+        password = request.form('password')
+        email = request.form('email')
+        db.create_user_in_db(user=username, mail=email, password=password)
+        return
+
+    @app.route('/authenticate_user/', method = 'GET')
+    def authenticate_user():
+        usermail = request.args.get('usermail')
+        password = request.args.get('password')
+        return db.check_user_in_db(usermail=usermail, password=password)
 
     return app
 
-application = create_app()
+if __name__ == '__main__':
+    application = create_app()

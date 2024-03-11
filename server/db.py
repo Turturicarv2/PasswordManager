@@ -70,13 +70,13 @@ def execute_sql_insert_pwd(path):
         raise
 
 
-def execute_sql_select_pwd(path):
+def create_user_in_db(user, mail, password):
     db = get_db()
 
     try:
         with db.cursor() as cursor:
-            sql = "SELECT FROM passwords (column1, column2) VALUES (%s, %s)"
-            cursor.execute(sql, (path, 'value2'))  # You can change 'value2' here or make it another parameter
+            sql = "INSERT INTO users (master_user, master_email, master_password) VALUES (%s, %s, %s)"
+            cursor.execute(sql, (user, mail, password))
         db.commit()
     except Exception as e:
         # Print or log the error message
@@ -85,6 +85,35 @@ def execute_sql_select_pwd(path):
         db.rollback()
         # Optionally raise the exception to halt execution
         raise
+
+
+def check_user_in_db(usermail, password):
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "SELECT * FROM users WHERE master_user = %s"
+            cursor.execute(sql, usermail)
+            result = cursor.fetchone()
+
+            if not result:
+                sql = "SELECT * FROM users WHERE master_email = %s"
+                cursor.execute(sql, usermail)
+                result = cursor.fetchone()
+            
+            # might raise an error because result is not checked if empty
+            if password == result['master_password']:
+                return True
+            
+            return False
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
+
 
 @click.command('init-db')
 def init_db_command():
