@@ -34,7 +34,7 @@ def create_app(test_config=None):
         result = db.execute_sql_select_pwd(path=path)
         return jsonify(result=result)
     
-    @app.route('/create_user/', method = 'POST')
+    @app.route('/create_user/', methods = ['POST'])
     def create_user():
         username = request.form('user')
         password = request.form('password')
@@ -42,7 +42,7 @@ def create_app(test_config=None):
         db.create_user_in_db(user=username, mail=email, password=password)
         return
 
-    @app.route('/authenticate_user/', method = 'GET')
+    @app.route('/authenticate_user/', methods = ['GET'])
     def authenticate_user():
         usermail = request.args.get('usermail')
         password = request.args.get('password')
