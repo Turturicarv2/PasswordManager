@@ -24,15 +24,29 @@ def create_app(test_config=None):
         result = db.execute_sql_from_file('db_operations/select.sql')
         return jsonify(result=result)
     
-    @app.route('/store_pwd/<path>/')
-    def store_pwd(path):
-        db.execute_sql_insert_pwd(path=path)
+    @app.route('/store_pwd/', methods = ['POST'])
+    def store_pwd():
+        id_master_user = request.form('id_user')
+        url_path = request.form('url_path')
+        username = request.form('username')
+        password = request.form('password')
+        db.execute_sql_insert_pwd(id_master_user=id_master_user, url_path=url_path, username=username, password=password)
         return
     
-    @app.route('/return_pwd/<path>/')
-    def return_pwd(path):
-        result = db.execute_sql_select_pwd(path=path)
+    @app.route('/return_pwd/<path>/', methods = ['GET'])
+    def return_pwd():
+        id_master_user = request.args.get('id_user')
+        url_path = request.args.get('url_path')
+        result = db.execute_sql_select_pwd(id_master_user=id_master_user, url_path=url_path)
         return jsonify(result=result)
+    
+    @app.route('', methods = ['PUT'])
+    def update_pwd():
+        id_master_user = request.args.get('id_user')
+        url_path = request.args.get('url_path')
+        username = request.args.get('username')
+        new_password = request.args.get('new_password')
+        return db.execute_sql_update_pwd(id_master_user=id_master_user, url_path=url_path, username=username, new_password=new_password)
     
     @app.route('/create_user/', methods = ['POST'])
     def create_user():

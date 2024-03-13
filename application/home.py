@@ -9,11 +9,20 @@ class Home(ttk.Window):
         self.geometry('800x600')
         self.minsize(width=800, height=400)
 
-        # layout
-        self.columnconfigure((0,1,2,3,4), weight = 1, uniform = 'a')
-        self.rowconfigure(0, weight = 1)
-
         self.mainloop()
+
+
+class PasswordArea(ttk.Frame):
+    def __init__(self):
+        super().__init__()
+
+    def list_passwords(self):
+        ttk.Label(text = 'Website').pack(side = 'left')
+        ttk.Label(text = 'Username').pack(side = 'left')
+        ttk.Label(text = 'Password').pack(side = 'left')
+        for i in range(5):
+            ttk.Label(text = '')
+
 
 if __name__ == '__main__':
     Home()

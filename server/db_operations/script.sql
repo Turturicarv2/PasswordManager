@@ -1,7 +1,3 @@
-
-DROP TABLE passwords;
-DROP TABLE users;
-
 CREATE TABLE IF NOT EXISTS users (
   id_user INTEGER PRIMARY KEY AUTO_INCREMENT,
   master_user TEXT NOT NULL,

@@ -23,7 +23,7 @@ def get_db():
     return g.db
 
 
-def close_db():
+def close_db(event):
     db = g.pop('db', None)
 
     if db is not None:
@@ -53,14 +53,50 @@ def execute_sql_from_file(filename):
             raise
 
 
-def execute_sql_insert_pwd(path):
+def execute_sql_insert_pwd(id_master_user, url_path, username, password):
     db = get_db()
 
     try:
         with db.cursor() as cursor:
-            sql = "INSERT INTO passwords (column1, column2) VALUES (%s, %s)"
-            cursor.execute(sql, (path, 'value2'))  # You can change 'value2' here or make it another parameter
+            sql = "INSERT INTO passwords (id_user, s_url_path, s_username, s_password) VALUES (%s, %s)"
+            cursor.execute(sql, (id_master_user, url_path, username, password))
         db.commit()
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
+
+
+def execute_sql_select_pwd(id_master_user, url_path):
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "SELECT * FROM passwords WHERE id_user=%s AND s_url_path=%s"
+            cursor.execute(sql, (id_master_user, url_path))
+            result = cursor.fetchall()
+            return result
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
+
+
+def execute_sql_update_pwd(id_master_user, url_path, username, new_password):
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "UPDATE passwords SET password = %s WHERE id_user = %s AND s_url_path = %s AND s_username = %s"
+            cursor.execute(sql, (new_password, id_master_user, url_path, username))
+            result = cursor.fetchall()
+            return result
     except Exception as e:
         # Print or log the error message
         print("Error executing SQL insert statement:", e)
@@ -118,7 +154,7 @@ def check_user_in_db(usermail, password):
 @click.command('init-db')
 def init_db_command():
     """Clear the existing data and create new tables."""
-    execute_sql_from_file('script.sql')
+    execute_sql_from_file('db_operations/script.sql')
     click.echo('Initialized the database.')
 
 
