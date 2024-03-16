@@ -1,24 +1,14 @@
-import pymysql
+# IMPORTANT
+# this code works on pythonanywhere, but might not quite work locally!!
+
+from MySQLdb import connect
 import click
 from flask import current_app, g
 
 
 def get_db():
     if 'db' not in g:
-        timeout = 10
-
-        g.db = pymysql.connect(
-            charset="utf8mb4",
-            connect_timeout=timeout,
-            cursorclass=pymysql.cursors.DictCursor,
-            db="Flask",
-            host="mysql-2ccb2f6c-daniel-f835.a.aivencloud.com",
-            password="AVNS_p-vlOmU1uY0VsjX-AOc",
-            read_timeout=timeout,
-            port=20945,
-            user="avnadmin",
-            write_timeout=timeout,
-        )
+        g.db = connect("Turturicar.mysql.pythonanywhere-services.com","Turturicar","yr^6W]kEqB.CBdD","Turturicar$server-db")
 
     return g.db
 
@@ -51,6 +41,24 @@ def execute_sql_from_file(filename):
             db.rollback()
             # Optionally raise the exception to halt execution
             raise
+
+
+def execute_sql_test_select():
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "SELECT * FROM users"
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            return result
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
 
 
 def execute_sql_insert_pwd(id_master_user, url_path, username, password):
@@ -95,8 +103,24 @@ def execute_sql_update_pwd(id_master_user, url_path, username, new_password):
         with db.cursor() as cursor:
             sql = "UPDATE passwords SET password = %s WHERE id_user = %s AND s_url_path = %s AND s_username = %s"
             cursor.execute(sql, (new_password, id_master_user, url_path, username))
-            result = cursor.fetchall()
-            return result
+            db.commit()
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
+
+
+def execute_sql_delete_pwd(id_master_user, url_path, username):
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "DELETE FROM table_name WHERE id_user = %s AND s_url_path = %s AND s_username = %s;"
+            cursor.execute(sql, (id_master_user, url_path, username))
+            db.commit()
     except Exception as e:
         # Print or log the error message
         print("Error executing SQL insert statement:", e)
@@ -136,11 +160,11 @@ def check_user_in_db(usermail, password):
                 sql = "SELECT * FROM users WHERE master_email = %s"
                 cursor.execute(sql, usermail)
                 result = cursor.fetchone()
-            
+
             # might raise an error because result is not checked if empty
             if password == result['master_password']:
                 return True
-            
+
             return False
     except Exception as e:
         # Print or log the error message
@@ -153,9 +177,15 @@ def check_user_in_db(usermail, password):
 
 @click.command('init-db')
 def init_db_command():
-    """Clear the existing data and create new tables."""
+    """Initialize database"""
     execute_sql_from_file('db_operations/script.sql')
     click.echo('Initialized the database.')
+
+
+def init_db():
+    """Initialize database"""
+    execute_sql_from_file('db_operations/script.sql')
+    return
 
 
 def init_app(app):
