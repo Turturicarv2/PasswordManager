@@ -2,6 +2,8 @@ import tkinter as tk
 import ttkbootstrap as ttk
 from settings import *
 from PIL import Image
+import requests
+from login_page import login_page
 
 
 
@@ -36,14 +38,18 @@ class signup_page(ttk.Toplevel):
     def create_widgets(self):
         login_frame = ttk.Frame(self)
         ttk.Label(login_frame, text='Email:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
-        ttk.Entry(login_frame, bootstyle = 'PRIMARY').pack(pady = 5)
+        self.mail_entry = ttk.Entry(login_frame, bootstyle = 'PRIMARY')
+        self.mail_entry.pack(pady = 5)
         ttk.Label(login_frame, text='Username:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
-        ttk.Entry(login_frame, bootstyle = 'PRIMARY').pack(pady = 5)
+        self.username_entry = ttk.Entry(login_frame, bootstyle = 'PRIMARY')
+        self.username_entry.pack(pady = 5)
         ttk.Label(login_frame, text='Password:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
-        ttk.Entry(login_frame, show='*', bootstyle = 'PRIMARY').pack(pady = 5)
-        ttk.Label(login_frame, text='Password:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
-        ttk.Entry(login_frame, show='*', bootstyle = 'PRIMARY').pack(pady = 5)
-        ttk.Button(login_frame, text='Log in').pack(pady = 20)
+        self.password_entry = ttk.Entry(login_frame, show='*', bootstyle = 'PRIMARY')
+        self.password_entry.pack(pady = 5)
+        ttk.Label(login_frame, text='Repeat Password:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
+        self.password_reentry = ttk.Entry(login_frame, show='*', bootstyle = 'PRIMARY')
+        self.password_reentry.pack(pady = 5)
+        ttk.Button(login_frame, text='Sign up', command=self.signup_button_command).pack(pady = 20)
         home = ttk.Label(self, text = '< Back', bootstyle = 'SECONDARY')
         home.bind('<Button>', self.open_home_page)
         home.place(x = 20, y = 20, anchor='nw')
@@ -60,3 +66,32 @@ class signup_page(ttk.Toplevel):
       
     def close_app(self):
         self.main_window.destroy()
+
+    def signup_button_command(self):
+        password = self.password_entry.get()
+        password_check = self.password_reentry.get()
+
+        if password != password_check:
+            # TODO: Add an error message here!
+            pass
+        else:
+            username = self.username_entry.get()
+            email = self.mail_entry.get()
+
+            url = "https://turturicar.pythonanywhere.com/create_user/"
+
+            # Adding a payload
+            payload = {"username": username, "email": email, "password": password}
+
+            # A get request to the server
+            connection = requests.post(url, json = payload)
+
+            response = connection.json()
+
+            if response['success'] == True:
+                self.destroy()
+                self.update()
+                login_page(main_window=self.main_window)
+            else:
+                # TODO: Add an error message here!
+                pass
