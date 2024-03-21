@@ -89,6 +89,7 @@ class signup_page(ttk.Toplevel):
             response = connection.json()
 
             if response['success'] == True:
+                # TODO: Add some sort of success message
                 self.destroy()
                 self.update()
                 login_page(main_window=self.main_window)

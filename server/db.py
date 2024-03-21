@@ -1,6 +1,5 @@
 # IMPORTANT
 # this code works on pythonanywhere, but might not quite work locally!!
-
 from MySQLdb import connect
 import click
 from flask import current_app, g
@@ -135,9 +134,11 @@ def create_user_in_db(user, mail, password):
 
     try:
         with db.cursor() as cursor:
+            # TODO: Add some select statements to check if the mail/user is already in use!
             sql = "INSERT INTO users (master_user, master_email, master_password) VALUES (%s, %s, %s)"
             cursor.execute(sql, (user, mail, password))
         db.commit()
+        return {'success': True}
     except Exception as e:
         # Print or log the error message
         print("Error executing SQL insert statement:", e)
@@ -163,9 +164,11 @@ def check_user_in_db(usermail, password):
 
             # might raise an error because result is not checked if empty
             if password == result['master_password']:
-                return True
+                return_json = {"success": True, "id": result['id_user']}
+            else:
+                return_json = {"success": False}
 
-            return False
+            return return_json
     except Exception as e:
         # Print or log the error message
         print("Error executing SQL insert statement:", e)

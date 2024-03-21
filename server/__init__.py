@@ -1,6 +1,6 @@
-import os
-
-from flask import Flask, Response, render_template, jsonify, request
+# IMPORTANT
+# this code works on pythonanywhere, but might not quite work locally!!
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from db import *
@@ -18,7 +18,7 @@ init_app(app)
 @app.route('/')
 def home():
     init_db()
-    return 'Hello! Check the extension!'
+    return "Hello! Check the extension!"
 
 @app.route('/get_data/')
 def get_data():
@@ -64,11 +64,10 @@ def delete_pwd():
 
 @app.route('/create_user/', methods = ['POST'])
 def create_user():
-    username = request.form('user')
+    username = request.form('username')
     password = request.form('password')
     email = request.form('email')
-    create_user_in_db(user=username, mail=email, password=password)
-    return
+    return create_user_in_db(user=username, mail=email, password=password)
 
 @app.route('/authenticate_user/', methods = ['GET'])
 def authenticate_user():
