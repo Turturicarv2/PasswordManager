@@ -1,5 +1,6 @@
 import tkinter as tk
 import ttkbootstrap as ttk
+from ttkbootstrap.dialogs.dialogs import Messagebox
 from settings import *
 from PIL import Image
 import requests
@@ -71,13 +72,17 @@ class signup_page(ttk.Toplevel):
         password = self.password_entry.get()
         password_check = self.password_reentry.get()
 
-        if password != password_check:
-            # TODO: Add an error message here!
-            pass
-        else:
-            username = self.username_entry.get()
-            email = self.mail_entry.get()
+        username = self.username_entry.get()
+        email = self.mail_entry.get()
 
+        if password != password_check:
+            Messagebox.show_error('Your passwords are not the same!', title = 'Error', parent = self, alert=True)
+        # TODO: Add email + user check here! 
+        elif len(username) < 6:
+            Messagebox.show_error('Your username is too short!', title = 'Error', parent = self, alert=True)
+        elif len(password) < 8:
+            Messagebox.show_error('Your password is too short!', title = 'Error', parent = self, alert=True)
+        else:
             url = "https://turturicar.pythonanywhere.com/create_user/"
 
             # Adding a payload
@@ -94,5 +99,4 @@ class signup_page(ttk.Toplevel):
                 self.update()
                 login_page(main_window=self.main_window)
             else:
-                # TODO: Add an error message here!
-                pass
+                Messagebox.show_error('Oops, something went wrong', title = 'Error', parent = self, alert=True)
