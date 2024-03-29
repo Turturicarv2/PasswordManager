@@ -5,6 +5,7 @@ from settings import *
 from PIL import Image
 import requests
 from login_page import login_page
+import re
 
 
 
@@ -75,13 +76,17 @@ class signup_page(ttk.Toplevel):
         username = self.username_entry.get()
         email = self.mail_entry.get()
 
+        password_valid, password_error_message = is_valid_password(password)
+        username_valid, username_error_message = is_valid_username(username)
+
         if password != password_check:
             Messagebox.show_error('Your passwords are not the same!', title = 'Error', parent = self, alert=True)
-        # TODO: Add email + user check here! 
-        elif len(username) < 6:
-            Messagebox.show_error('Your username is too short!', title = 'Error', parent = self, alert=True)
-        elif len(password) < 8:
-            Messagebox.show_error('Your password is too short!', title = 'Error', parent = self, alert=True)
+        elif not username_valid:
+            Messagebox.show_error(username_error_message, title = 'Error', parent = self, alert=True)
+        elif not is_valid_email(email):
+            Messagebox.show_error('Your email is invalid!', title = 'Error', parent = self, alert=True)
+        elif not password_valid:
+            Messagebox.show_error(password_error_message, title = 'Error', parent = self, alert=True)
         else:
             url = "https://turturicar.pythonanywhere.com/create_user/"
 
@@ -90,7 +95,6 @@ class signup_page(ttk.Toplevel):
 
             # A get request to the server
             connection = requests.post(url, json = payload)
-
             response = connection.json()
 
             if response['success'] == True:
@@ -100,3 +104,46 @@ class signup_page(ttk.Toplevel):
                 login_page(main_window=self.main_window)
             else:
                 Messagebox.show_error('Oops, something went wrong', title = 'Error', parent = self, alert=True)
+
+def is_valid_email(email):
+    # Regular expression for validating an email address
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    
+    # Check if the email matches the regular expression
+    if re.match(email_regex, email):
+        return True
+    else:
+        return False
+    
+def is_valid_password(password):
+    # Check if the password meets the criteria
+    if len(password) < 8:
+        return (False, 'Your password is too short!')  # Password must be at least 8 characters long
+
+    # Regular expression for validating a password
+    password_regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$'
+    
+    # Check if the password matches the regular expression
+    if re.match(password_regex, password):
+        return (True, True)
+    else:
+        return (False, 'Your password is invalid!')
+
+def is_valid_username(username):
+    min_length=6
+    max_length=20
+
+    # Check if the username contains only alphanumeric characters, hyphens, and underscores
+    if not username.replace('-', '').replace('_', '').isalnum():
+        return (False, "Your username contains only '-' and '_' characters!)")
+
+    # Check if the username length is within the specified range
+    if not min_length <= len(username) <= max_length:
+        return (False, 'Your username does not have the specified length (min 6, max 20 characters)!')
+
+    # Check if the username contains any spaces
+    if ' ' in username:
+        return (False, 'Your username contains spaces!')
+
+    # If all checks pass, the username is valid
+    return (True, True)
