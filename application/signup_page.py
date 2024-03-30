@@ -94,7 +94,7 @@ class signup_page(ttk.Toplevel):
             payload = {"username": username, "email": email, "password": password}
 
             # A get request to the server
-            connection = requests.post(url, json = payload)
+            connection = requests.post(url, params = payload)
             response = connection.json()
 
             if response['success'] == True:
@@ -103,7 +103,7 @@ class signup_page(ttk.Toplevel):
                 self.update()
                 login_page(main_window=self.main_window)
             else:
-                Messagebox.show_error('Oops, something went wrong', title = 'Error', parent = self, alert=True)
+                Messagebox.show_error(response['message'], title = 'Error', parent = self, alert=True)
 
 def is_valid_email(email):
     # Regular expression for validating an email address

@@ -73,7 +73,6 @@ class login_page(ttk.Toplevel):
 
         # A get request to the server
         connection = requests.get(url, params = payload)
-
         response = connection.json()
 
         if response['success'] == True:
