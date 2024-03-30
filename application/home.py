@@ -2,7 +2,7 @@ import tkinter as tk
 import ttkbootstrap as ttk
 
 class Home(ttk.Window):
-    def __init__(self, main_window):
+    def __init__(self, main_window, user_id):
         # setup
         super().__init__()
         self.title('Home')

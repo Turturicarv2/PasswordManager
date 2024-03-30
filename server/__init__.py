@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 from db import *
 
-# create and configure the app
+# create and configure the server
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_mapping(
     SECRET_KEY='dev'
@@ -64,10 +64,16 @@ def delete_pwd():
 
 @app.route('/create_user/', methods = ['POST'])
 def create_user():
-    username = request.form('username')
-    password = request.form('password')
-    email = request.form('email')
-    return create_user_in_db(user=username, mail=email, password=password)
+    try:
+        username = request.args.get('username')
+        email = request.args.get('email')
+        password = request.args.get('password')
+
+        result = create_user_in_db(user=username, mail=email, password=password)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 
 @app.route('/authenticate_user/', methods = ['GET'])
 def authenticate_user():

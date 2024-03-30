@@ -2,7 +2,8 @@
 # this code works on pythonanywhere, but might not quite work locally!!
 from MySQLdb import connect
 import click
-from flask import current_app, g
+from flask import current_app, g, jsonify
+from security import hash_password
 
 
 def get_db():
@@ -134,14 +135,31 @@ def create_user_in_db(user, mail, password):
 
     try:
         with db.cursor() as cursor:
-            # TODO: Add some select statements to check if the mail/user is already in use!
-            sql = "INSERT INTO users (master_user, master_email, master_password) VALUES (%s, %s, %s)"
-            cursor.execute(sql, (user, mail, password))
+            # Check if the username or email already exists in the database
+            sql_check_username = "SELECT COUNT(*) FROM users WHERE master_user = %s"
+            cursor.execute(sql_check_username, (user,))
+            username_result = cursor.fetchone()
+
+            sql_check_email = "SELECT COUNT(*) FROM users WHERE master_email = %s"
+            cursor.execute(sql_check_email, (mail,))
+            email_result = cursor.fetchone()
+
+            # If username already exists, return failure message
+            if username_result[0] > 0:
+                return {'success': False, 'message': 'Username already taken'}
+
+            # If email already exists, return failure message
+            if email_result[0] > 0:
+                return {'success': False, 'message': 'Email already taken'}
+
+            # If both username and email are unique, proceed with insertion
+            sql_insert = "INSERT INTO users (master_user, master_email, master_password) VALUES (%s, %s, %s)"
+            hashed_password = hash_password(password)
+            cursor.execute(sql_insert, (user, mail, hashed_password))
+
         db.commit()
         return {'success': True}
     except Exception as e:
-        # Print or log the error message
-        print("Error executing SQL insert statement:", e)
         # Rollback any changes if necessary
         db.rollback()
         # Optionally raise the exception to halt execution
@@ -153,29 +171,29 @@ def check_user_in_db(usermail, password):
 
     try:
         with db.cursor() as cursor:
-            sql = "SELECT * FROM users WHERE master_user = %s"
-            cursor.execute(sql, usermail)
+            sql = "SELECT id_user, master_password FROM users WHERE master_user = %s"
+            cursor.execute(sql, (usermail,))
             result = cursor.fetchone()
 
             if not result:
-                sql = "SELECT * FROM users WHERE master_email = %s"
-                cursor.execute(sql, usermail)
+                sql = "SELECT id_user, master_password FROM users WHERE master_email = %s"
+                cursor.execute(sql, (usermail,))
                 result = cursor.fetchone()
 
-            # might raise an error because result is not checked if empty
-            if password == result['master_password']:
-                return_json = {"success": True, "id": result['id_user']}
+            hashed_password = hash_password(password)
+            if hashed_password == result[1]:
+                return_json = {"success": True, "id": result[0]}
             else:
-                return_json = {"success": False}
+                return_json = {"success": False, "message": "Wrong password!"}
 
             return return_json
+
     except Exception as e:
-        # Print or log the error message
-        print("Error executing SQL insert statement:", e)
         # Rollback any changes if necessary
         db.rollback()
         # Optionally raise the exception to halt execution
-        raise
+        return_data = {"success": False, "message": str(e)}
+        return return_data
 
 
 @click.command('init-db')

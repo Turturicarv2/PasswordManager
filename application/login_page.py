@@ -1,8 +1,8 @@
 import tkinter as tk
 import ttkbootstrap as ttk
+from ttkbootstrap.dialogs.dialogs import Messagebox
 from settings import *
 from PIL import Image
-from hashlib import sha256
 import requests
 from home import Home
 
@@ -38,7 +38,7 @@ class login_page(ttk.Toplevel):
     
     def create_widgets(self):
         login_frame = ttk.Frame(self)
-        ttk.Label(login_frame, text='Username:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
+        ttk.Label(login_frame, text='Username/Email:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
         self.username_entry = ttk.Entry(login_frame, bootstyle = 'PRIMARY')
         self.username_entry.pack(pady = 5)
         ttk.Label(login_frame, text='Password:', font=(FONT, TEXT_SIZE), bootstyle = 'SECONDARY').pack()
@@ -80,5 +80,5 @@ class login_page(ttk.Toplevel):
             self.update()
             Home(main_window=self.main_window, user_id = response['id'])
         else:
-            # TODO: Add an error message here!
-            pass
+            print(response['message'])
+            # Messagebox.show_error(response['message'], title = 'Error', parent = self, alert=True)
