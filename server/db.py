@@ -48,17 +48,27 @@ def execute_sql_test_select():
 
     try:
         with db.cursor() as cursor:
-            sql = "SELECT * FROM users"
+            sql = "SELECT * FROM passwords"
             cursor.execute(sql)
-            result = cursor.fetchall()
-            return result
+            rows = cursor.fetchall()
+
+            if rows:
+                # Get column names
+                columns = [column[0] for column in cursor.description]
+
+                # Convert each row to a dictionary
+                result = []
+                for row in rows:
+                    row_dict = dict(zip(columns, row))
+                    result.append(row_dict)
+
+                return result
+            else:
+                return {"error": "No users found"}
     except Exception as e:
-        # Print or log the error message
-        print("Error executing SQL insert statement:", e)
-        # Rollback any changes if necessary
+        # Rollback any changes
         db.rollback()
-        # Optionally raise the exception to halt execution
-        raise
+        return {"error": str(e)}
 
 
 def execute_sql_insert_pwd(id_master_user, url_path, username, password):
@@ -66,7 +76,7 @@ def execute_sql_insert_pwd(id_master_user, url_path, username, password):
 
     try:
         with db.cursor() as cursor:
-            sql = "INSERT INTO passwords (id_user, s_url_path, s_username, s_password) VALUES (%s, %s)"
+            sql = "INSERT INTO passwords (id_user, s_url_path, s_username, s_password) VALUES (%s, %s, %s, %s)"
             cursor.execute(sql, (id_master_user, url_path, username, password))
         db.commit()
     except Exception as e:
