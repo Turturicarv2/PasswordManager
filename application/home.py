@@ -24,26 +24,31 @@ class Home(ttk.Toplevel):
     def close_app(self):
         self.last_window.destroy()
 
-    def list_passwords(self):
-        table = ttk.Treeview(
-            self,
-            columns = ('id_password', 'id_user', 'url', 'username', 'password'),
-            show = 'headings'
-        )
-        table.heading('id_password', text = 'ID Password')
-        table.heading('id_user', text = 'ID User')
-        table.heading('url', text = 'Website URL')
-        table.heading('username', text = 'Username/Email')
-        table.heading('password', text = 'Password')
-        table.pack(fill = 'both', expand = True)
+    def create_widgets(self):
+        self.password_frame = ttk.Frame(self)
+        self.list_passwords()
 
-        url = "https://turturicar.pythonanywhere.com/get_data/"
+    def list_passwords(self):
+        url = "https://defnotturt.pythonanywhere.com/get_data/"
 
         # A get request to the server
         connection = requests.get(url)
         response = connection.json()
 
         if not response.get('error'):
+            table = ttk.Treeview(
+                self.password_frame,
+                columns = ('id_password', 'id_user', 'url', 'username', 'password'),
+                show = 'headings'
+            )
+
+            table.heading('id_password', text = 'ID Password')
+            table.heading('id_user', text = 'ID User')
+            table.heading('url', text = 'Website URL')
+            table.heading('username', text = 'Username/Email')
+            table.heading('password', text = 'Password')
+            table.pack(fill = 'both', expand = True)
+
             result = response.get('result')
             if result:
                 for row in result:

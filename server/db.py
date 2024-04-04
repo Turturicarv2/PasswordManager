@@ -8,7 +8,7 @@ from security import hash_password
 
 def get_db():
     if 'db' not in g:
-        g.db = connect("Turturicar.mysql.pythonanywhere-services.com","Turturicar","yr^6W]kEqB.CBdD","Turturicar$server-db")
+        g.db = connect("DefNotTurt.mysql.pythonanywhere-services.com","DefNotTurt","yr^6W]kEqB.CBdD","DefNotTurt$server-db")
 
     return g.db
 
