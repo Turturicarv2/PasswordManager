@@ -48,7 +48,7 @@ def execute_sql_test_select():
 
     try:
         with db.cursor() as cursor:
-            sql = "SELECT * FROM passwords"
+            sql = "SELECT * FROM users"
             cursor.execute(sql)
             rows = cursor.fetchall()
 
@@ -71,6 +71,24 @@ def execute_sql_test_select():
         return {"error": str(e)}
 
 
+def execute_sql_select_master_user(id_master_user):
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "SELECT master_user FROM users WHERE id_user=%s"
+            cursor.execute(sql, (id_master_user,))
+            result = cursor.fetchall()
+            return result
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
+
+
 def execute_sql_insert_pwd(id_master_user, url_path, username, password):
     db = get_db()
 
@@ -88,13 +106,31 @@ def execute_sql_insert_pwd(id_master_user, url_path, username, password):
         raise
 
 
-def execute_sql_select_pwd(id_master_user, url_path):
+def execute_sql_select_specific_pwd(id_master_user, url_path):
     db = get_db()
 
     try:
         with db.cursor() as cursor:
             sql = "SELECT * FROM passwords WHERE id_user=%s AND s_url_path=%s"
             cursor.execute(sql, (id_master_user, url_path))
+            result = cursor.fetchall()
+            return result
+    except Exception as e:
+        # Print or log the error message
+        print("Error executing SQL insert statement:", e)
+        # Rollback any changes if necessary
+        db.rollback()
+        # Optionally raise the exception to halt execution
+        raise
+
+
+def execute_sql_select_all_pwd(id_master_user):
+    db = get_db()
+
+    try:
+        with db.cursor() as cursor:
+            sql = "SELECT s_url_path, s_username, s_password FROM passwords WHERE id_user=%s"
+            cursor.execute(sql, (id_master_user,))
             result = cursor.fetchall()
             return result
     except Exception as e:
@@ -160,7 +196,7 @@ def create_user_in_db(user, mail, password):
 
             # If email already exists, return failure message
             if email_result[0] > 0:
-                return {'success': False, 'message': 'Email already taken'}
+                return {'success': False, 'message': 'Email already in use'}
 
             # If both username and email are unique, proceed with insertion
             sql_insert = "INSERT INTO users (master_user, master_email, master_password) VALUES (%s, %s, %s)"
@@ -169,7 +205,7 @@ def create_user_in_db(user, mail, password):
 
         db.commit()
         return {'success': True}
-    except Exception as e:
+    except:
         # Rollback any changes if necessary
         db.rollback()
         # Optionally raise the exception to halt execution

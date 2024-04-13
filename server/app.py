@@ -25,10 +25,11 @@ def get_data():
     result = execute_sql_test_select()
     return jsonify(result=result)
 
-@app.route('/get_data_hosted/')
-def get_data_hosted():
-    result = execute_sql_test_select()
-    return jsonify(result=result)
+@app.route('/get_master_user/', methods = ['GET'])
+def get_master_user():
+    id_master_user = request.args.get('id_user')
+    result = execute_sql_select_master_user(id_master_user)
+    return jsonify(result)
 
 @app.route('/store_pwd/', methods = ['POST'])
 def store_pwd():
@@ -39,11 +40,17 @@ def store_pwd():
     execute_sql_insert_pwd(id_master_user=id_master_user, url_path=url_path, username=username, password=password)
     return
 
-@app.route('/return_pwd/', methods = ['GET'])
-def return_pwd():
+@app.route('/select_pwd/', methods = ['GET'])
+def select_pwd():
     id_master_user = request.args.get('id_user')
     url_path = request.args.get('url_path')
-    result = execute_sql_select_pwd(id_master_user=id_master_user, url_path=url_path)
+    result = execute_sql_select_specific_pwd(id_master_user=id_master_user, url_path=url_path)
+    return jsonify(result=result)
+
+@app.route('/select_all_pwd/', methods = ['GET'])
+def select_all_pwd():
+    id_master_user = request.args.get('id_user')
+    result = execute_sql_select_all_pwd(id_master_user=id_master_user)
     return jsonify(result=result)
 
 @app.route('/update_pwd/', methods = ['PUT'])

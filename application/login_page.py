@@ -78,7 +78,7 @@ class login_page(ttk.Toplevel):
         if response['success'] == True:
             self.destroy()
             self.update()
-            Home(last_window=self.main_window, user_id = response['id'])
+            Home(main_window=self.main_window, user_id = response['id'])
         else:
             print(response['message'])
             # Messagebox.show_error(response['message'], title = 'Error', parent = self, alert=True)
