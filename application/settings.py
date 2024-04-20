@@ -1,4 +1,6 @@
 from PIL import ImageTk
+import string
+import random
 
 FONT = 'Ubuntu'
 TITLE_SIZE = 20
@@ -44,3 +46,16 @@ def fill_image(image, image_ratio, canvas, event):
         image=resized_tk, 
         anchor = 'center'
     )
+
+def generate_password(length):
+    symbols = "@$!%*?&"
+    password = ''
+
+    while not (any(c in string.ascii_lowercase for c in password) and
+               any(c in string.ascii_uppercase for c in password) and
+               any(c in string.digits for c in password) and
+               any(c in symbols for c in password) and
+               len(password) == length):
+        password = ''.join(random.choices(string.ascii_letters + string.digits + symbols, k=length))
+
+    return password
