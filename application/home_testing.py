@@ -1,6 +1,6 @@
 # IMPORTANT!
 # This file is only for testing
-# this is a copy of home.py file that does not require server interaction
+# This is a copy of home.py file that does not require server interaction
 
 import tkinter as tk
 import ttkbootstrap as ttk
@@ -15,7 +15,6 @@ class Home(ttk.Toplevel):
         super().__init__()
         self.user_id = user_id
         self.title('Home')
-        self.geometry('850x600')
         self.minsize(width=850, height=600)
 
         # grid layout
@@ -61,22 +60,29 @@ class Home(ttk.Toplevel):
 
         ttk.Label(master=password_frame, text='List of Passwords:', bootstyle = 'PRIMARY', font=(FONT, TEXT_SIZE)).pack()
 
-        # Hardcoded example data (replace this with your actual data)
+        # Hardcoded example data
         result = [
-            ('example.com', 'user1', "password1"),
+            ('example.com', 'user1', 'password1'),
             ('example.net', 'user2', 'password2'),
         ]
 
+        self.result = result
+
+        password_actions_frame = ttk.Frame(master=password_frame)
+
         if result:
-            PasswordTable(master=password_frame, rowdata=result).pack()
+            PasswordTable(master=password_frame, rowdata=result, use = 'show').pack()
+
+            ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)
+            ttk.Button(master=password_actions_frame, text='UPDATE', bootstyle = 'WARNING', command=self.update_password).pack(side = 'left', padx = 20)
+            ttk.Button(master=password_actions_frame, text='DELETE', bootstyle = 'DANGER', command=self.delete_password).pack(side = 'left', padx = 20)
+
         else:
             ttk.Label(master=password_frame, text="You have not yet stored any passwords").place(relx=0.5, rely=0.5, anchor='center')
+
+            ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)  
         
-        password_actions_frame = ttk.Frame(master=password_frame)
         password_actions_frame.pack(pady = 20)
-        ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)
-        ttk.Button(master=password_actions_frame, text='UPDATE', bootstyle = 'WARNING', command=self.update_password).pack(side = 'left', padx = 20)
-        ttk.Button(master=password_actions_frame, text='DELETE', bootstyle = 'DANGER', command=self.delete_password).pack(side = 'left', padx = 20)
 
     def create_generate_password_field(self):
         password_generate_frame = ttk.Frame(master=self)
@@ -99,13 +105,30 @@ class Home(ttk.Toplevel):
 
     # TODO: Do these methods!
     def add_password(self):
-        pass
+        add_password_window = ttk.Toplevel()
+        ttk.Label(master = add_password_window, text='Add a new password:', bootstyle = 'PRIMARY').pack(pady = 10)
+        new_password_frame = ttk.Frame(master=add_password_window)
+        new_password_frame.pack(pady = 20, padx = 20)
+        ttk.Label(master=new_password_frame, text='Website:', bootstyle = 'PRIMARY').grid(row = 0, column=0, padx=10, pady=5)
+        ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY').grid(row = 0, column=1, padx=10, pady=5)
+        ttk.Label(master=new_password_frame, text='Username:', bootstyle = 'PRIMARY').grid(row = 1, column=0, padx=10, pady=5)
+        ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY').grid(row = 1, column=1, padx=10, pady=5)
+        ttk.Label(master=new_password_frame, text='Password:', bootstyle = 'PRIMARY').grid(row = 2, column=0, padx=10, pady=5)
+        ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY').grid(row = 2, column=1, padx=10, pady=5)
+
+        ttk.Button(master = add_password_window, text='Add Password', bootstyle = 'SUCCESS').pack(pady = 10)
 
     def update_password(self):
-        pass
+        add_password_window = ttk.Toplevel()
+        ttk.Label(master = add_password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
+
+        PasswordTable(master=add_password_window, rowdata=self.result, use = 'update').pack()
 
     def delete_password(self):
-        pass
+        add_password_window = ttk.Toplevel()
+        ttk.Label(master = add_password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
+
+        PasswordTable(master=add_password_window, rowdata=self.result, use = 'delete').pack()
 
     def logout(self):
         if self.main_window:
