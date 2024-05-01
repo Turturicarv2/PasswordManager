@@ -66,7 +66,7 @@ class login_page(ttk.Toplevel):
         username = self.username_entry.get()
         password = self.password_entry.get()
 
-        url = "https://defnotturt.pythonanywhere.com/authenticate_user/"
+        url = server_url + "authenticate_user/"
 
         # Adding a payload
         payload = {"usermail": username, "password": password}

@@ -88,7 +88,7 @@ class signup_page(ttk.Toplevel):
         elif not password_valid:
             Messagebox.show_error(password_error_message, title = 'Error', parent = self, alert=True)
         else:
-            url = "https://defnotturt.pythonanywhere.com/create_user/"
+            url = server_url + "create_user/"
 
             # Adding a payload
             payload = {"username": username, "email": email, "password": password}

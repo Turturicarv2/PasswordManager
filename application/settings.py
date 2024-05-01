@@ -6,6 +6,8 @@ FONT = 'Ubuntu'
 TITLE_SIZE = 20
 TEXT_SIZE = 12
 
+server_url = "https://otherturt.pythonanywhere.com/"
+
 def stretch_image(image, image_ratio, canvas, event):
     global resized_tk
     canvas_ratio = int(event.width / event.height)

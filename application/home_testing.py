@@ -56,7 +56,7 @@ class Home(ttk.Toplevel):
 
     def create_password_field(self):
         password_frame = ttk.Frame(master=self)
-        password_frame.grid(column=2, columnspan=4, row=1, rowspan=9, sticky='nsew')
+        password_frame.grid(column=2, columnspan=4, row=1, rowspan=9)
 
         ttk.Label(master=password_frame, text='List of Passwords:', bootstyle = 'PRIMARY', font=(FONT, TEXT_SIZE)).pack()
 
@@ -71,7 +71,7 @@ class Home(ttk.Toplevel):
         password_actions_frame = ttk.Frame(master=password_frame)
 
         if result:
-            PasswordTable(master=password_frame, rowdata=result, use = 'show').pack()
+            PasswordTable(master=password_frame, rowdata=result, use = 'show', user_id=self.user_id).pack(pady = 50)
 
             ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)
             ttk.Button(master=password_actions_frame, text='UPDATE', bootstyle = 'WARNING', command=self.update_password).pack(side = 'left', padx = 20)
@@ -79,7 +79,6 @@ class Home(ttk.Toplevel):
 
         else:
             ttk.Label(master=password_frame, text="You have not yet stored any passwords").place(relx=0.5, rely=0.5, anchor='center')
-
             ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)  
         
         password_actions_frame.pack(pady = 20)
@@ -103,32 +102,58 @@ class Home(ttk.Toplevel):
         length = round(self.scale.get())
         self.password_textvar.set(generate_password(length))
 
-    # TODO: Do these methods!
     def add_password(self):
         add_password_window = ttk.Toplevel()
         ttk.Label(master = add_password_window, text='Add a new password:', bootstyle = 'PRIMARY').pack(pady = 10)
         new_password_frame = ttk.Frame(master=add_password_window)
         new_password_frame.pack(pady = 20, padx = 20)
         ttk.Label(master=new_password_frame, text='Website:', bootstyle = 'PRIMARY').grid(row = 0, column=0, padx=10, pady=5)
-        ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY').grid(row = 0, column=1, padx=10, pady=5)
+        website_entry = ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY')
+        website_entry.grid(row = 0, column=1, padx=10, pady=5)
         ttk.Label(master=new_password_frame, text='Username:', bootstyle = 'PRIMARY').grid(row = 1, column=0, padx=10, pady=5)
-        ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY').grid(row = 1, column=1, padx=10, pady=5)
+        username_entry = ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY')
+        username_entry.grid(row = 1, column=1, padx=10, pady=5)
         ttk.Label(master=new_password_frame, text='Password:', bootstyle = 'PRIMARY').grid(row = 2, column=0, padx=10, pady=5)
-        ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY').grid(row = 2, column=1, padx=10, pady=5)
+        password_entry = ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY')
+        password_entry.grid(row = 2, column=1, padx=10, pady=5)
 
-        ttk.Button(master = add_password_window, text='Add Password', bootstyle = 'SUCCESS').pack(pady = 10)
+        ttk.Button(
+            master = add_password_window, 
+            text='Add Password', 
+            bootstyle = 'SUCCESS', 
+            command=lambda: self.save_password(
+                window=add_password_window, 
+                user_entry=username_entry, 
+                password_entry=password_entry, 
+                website_entry=website_entry
+            )
+        ).pack(pady = 10)
+
+    def save_password(self, window, user_entry, password_entry, website_entry):
+        # NO SERVER INTERACTION FOR THIS FILE!
+
+        # url = "https://defnotturt.pythonanywhere.com/store_pwd/"
+        # username = user_entry.get()
+        # password = password_entry.get()
+        # website = website_entry.get()
+        # params = {"id_user": self.user_id, "url_path": website, "username": username, "password": password}
+
+        # connection = requests.post(url, params=params)
+        # response = connection.json()
+
+        window.destroy()
 
     def update_password(self):
         add_password_window = ttk.Toplevel()
         ttk.Label(master = add_password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
 
-        PasswordTable(master=add_password_window, rowdata=self.result, use = 'update').pack()
+        PasswordTable(master=add_password_window, rowdata=self.result, use = 'update', user_id=self.user_id, window=add_password_window).pack()
 
     def delete_password(self):
         add_password_window = ttk.Toplevel()
         ttk.Label(master = add_password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
 
-        PasswordTable(master=add_password_window, rowdata=self.result, use = 'delete').pack()
+        PasswordTable(master=add_password_window, rowdata=self.result, use = 'delete', user_id=self.user_id, window=add_password_window).pack()
 
     def logout(self):
         if self.main_window:

@@ -147,8 +147,8 @@ def execute_sql_update_pwd(id_master_user, url_path, username, new_password):
 
     try:
         with db.cursor() as cursor:
-            sql = "UPDATE passwords SET password = %s WHERE id_user = %s AND s_url_path = %s AND s_username = %s"
-            cursor.execute(sql, (new_password, id_master_user, url_path, username))
+            sql = "UPDATE passwords SET s_password = %s, s_username = %s WHERE id_user = %s AND s_url_path = %s"
+            cursor.execute(sql, (new_password, username, id_master_user, url_path))
             db.commit()
     except Exception as e:
         # Print or log the error message

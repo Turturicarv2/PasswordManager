@@ -33,10 +33,10 @@ def get_master_user():
 
 @app.route('/store_pwd/', methods = ['POST'])
 def store_pwd():
-    id_master_user = request.form('id_user')
-    url_path = request.form('url_path')
-    username = request.form('username')
-    password = request.form('password')
+    id_master_user = request.args.get('id_user')
+    url_path = request.args.get('url_path')
+    username = request.args.get('username')
+    password = request.args.get('password')
     execute_sql_insert_pwd(id_master_user=id_master_user, url_path=url_path, username=username, password=password)
     return
 
@@ -65,7 +65,6 @@ def update_pwd():
 def delete_pwd():
     id_master_user = request.args.get('id_user')
     url_path = request.args.get('url_path')
-    username = request.args.get('username')
     execute_sql_delete_pwd(id_master_user=id_master_user, url_path=url_path, username=username)
     return
 
