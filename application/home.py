@@ -3,6 +3,7 @@ import ttkbootstrap as ttk
 import requests
 from password_table import PasswordTable
 from settings import *
+from urllib.parse import urlparse
 
 class Home(ttk.Toplevel):
     def __init__(self, main_window, user_id):
@@ -11,8 +12,7 @@ class Home(ttk.Toplevel):
         super().__init__()
         self.user_id = user_id
         self.title('Home')
-        self.geometry('850x600')
-        self.minsize(width=850, height=600)
+        self.minsize(width=900, height=600)
 
         # grid layout
         self.columnconfigure((0,1,2,3,4, 5), weight=1, uniform='a')
@@ -57,8 +57,8 @@ class Home(ttk.Toplevel):
         ttk.Button(master = nav_bar, text='Log Out', bootstyle = 'DANGER', command = self.logout).grid(row = 0, column = 4, sticky='e', padx = 20)
 
     def create_password_field(self):
-        password_frame = ttk.Frame(master=self)
-        password_frame.grid(column=2, columnspan=4, row=1, rowspan=9, sticky='nsew')
+        self.password_frame = ttk.Frame(master=self)
+        self.password_frame.grid(column=2, columnspan=4, row=1, rowspan=9, sticky='nsew')
 
         url = server_url + "select_all_pwd/"
 
@@ -69,20 +69,29 @@ class Home(ttk.Toplevel):
         response = connection.json()
 
         self.result = response.get('result')
-        # TODO: result needs to be a list of tuples!
 
-        password_actions_frame = ttk.Frame(master=password_frame)
+        password_actions_frame = ttk.Frame(master=self.password_frame)
 
         if self.result:
-            PasswordTable(master=password_frame, rowdata=self.result).pack()
-            ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)
-            ttk.Button(master=password_actions_frame, text='UPDATE', bootstyle = 'WARNING', command=self.update_password).pack(side = 'left', padx = 20)
-            ttk.Button(master=password_actions_frame, text='DELETE', bootstyle = 'DANGER', command=self.delete_password).pack(side = 'left', padx = 20)
+            PasswordTable(master=self.password_frame, rowdata=self.result, use='show').pack()
+            ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle='SUCCESS', command=self.add_password).pack(side='left', padx=20)
+            ttk.Button(master=password_actions_frame, text='UPDATE', bootstyle='WARNING', command=self.update_password).pack(side='left', padx=20)
+            ttk.Button(master=password_actions_frame, text='DELETE', bootstyle='DANGER', command=self.delete_password).pack(side='left', padx=20)
+            ttk.Button(master=password_actions_frame, text='REFRESH', bootstyle='INFO', command=self.refresh_password).pack(side='left', padx=20)  # Add refresh button
         else:
-            ttk.Label(master=password_frame, text="You have not yet stored any passwords").place(relx = 0.5, rely = 0.5, anchor='center')
-            ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle = 'SUCCESS', command=self.add_password).pack(side = 'left', padx = 20)  
+            ttk.Label(master=self.password_frame, text="You have not yet stored any passwords").place(relx=0.5, rely=0.5, anchor='center')
+            ttk.Button(master=password_actions_frame, text='ADD NEW', bootstyle='SUCCESS', command=self.add_password).pack(side='left', padx=20)
+            ttk.Button(master=password_actions_frame, text='REFRESH', bootstyle='INFO', command=self.refresh_password).pack(side='left', padx=20)
 
-        password_actions_frame.pack(pady = 20)
+        password_actions_frame.pack(pady=20)
+
+    def refresh_password(self):
+        # Delete everything created inside create_password_field
+        for widget in self.password_frame.winfo_children():
+            widget.destroy()
+
+        # Call create_password_field to recreate the password field with updated data
+        self.create_password_field()
 
     def create_generate_password_field(self):
         password_generate_frame = ttk.Frame(master=self)
@@ -118,6 +127,8 @@ class Home(ttk.Toplevel):
         password_entry = ttk.Entry(master=new_password_frame, bootstyle = 'SECONDARY')
         password_entry.grid(row = 2, column=1, padx=10, pady=5)
 
+        add_password_window.bind("<Return>", lambda event: self.save_password(window=add_password_window, user_entry=username_entry, password_entry=password_entry, website_entry=website_entry))
+
         ttk.Button(
             master = add_password_window, 
             text='Add Password', 
@@ -135,11 +146,15 @@ class Home(ttk.Toplevel):
         username = user_entry.get()
         password = password_entry.get()
         website = website_entry.get()
-        params = {"id_user": self.user_id, "url_path": website, "username": username, "password": password}
+        
+        # Extracting the domain name from the website URL
+        parsed_url = urlparse(website)
+        domain = parsed_url.netloc
+        
+        # Sending only the domain to the server
+        params = {"id_user": self.user_id, "url_path": domain, "username": username, "password": password}
 
         requests.post(url, params=params)
-        # response = connection.json()
-
         window.destroy()
 
     def update_password(self):

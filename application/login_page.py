@@ -30,6 +30,7 @@ class login_page(ttk.Toplevel):
         self.create_widgets()
 
         # bindings
+        self.bind("<Return>", lambda event: self.login_button_command())
         self.canvas.bind('<Configure>', lambda event: stretch_image(self.image, self.image_ratio, self.canvas, event))
         self.protocol("WM_DELETE_WINDOW", self.close_app)
 
