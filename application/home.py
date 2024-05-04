@@ -4,6 +4,11 @@ import requests
 from password_table import PasswordTable
 from settings import *
 from urllib.parse import urlparse
+from flask import Flask, request
+import threading
+from multiprocessing import Process
+
+app = Flask(__name__)
 
 class Home(ttk.Toplevel):
     def __init__(self, main_window, user_id):
@@ -24,10 +29,23 @@ class Home(ttk.Toplevel):
         # bindings
         self.protocol("WM_DELETE_WINDOW", self.close_app)
 
+        # start Flask server
+        self.server = None
+        self.start_flask_server()
+        # flask_thread = threading.Thread(target=self.start_flask_server)
+        # flask_thread.daemon = True
+        # flask_thread.start()
+
         # mainloop
         self.mainloop()
 
+    def start_flask_server(self):
+        # app.run(threaded=True)
+        self.server = Process(target=app.run, kwargs={'threaded': True})
+        self.server.start()
+
     def close_app(self):
+        self.shutdown_server()
         self.main_window.destroy()
 
     def create_widgets(self):
@@ -170,6 +188,7 @@ class Home(ttk.Toplevel):
         PasswordTable(master=add_password_window, rowdata=self.result, use = 'delete', user_id=self.user_id, window=add_password_window).pack()
 
     def logout(self):
+        self.shutdown_server()
         self.destroy()
         self.update()
         self.main_window.deiconify()
@@ -179,3 +198,13 @@ class Home(ttk.Toplevel):
         if int(value) != value:
             self.scale.set(round(value))
             self.pass_len_label.config(text=f'{round(value)} characters')
+
+    def shutdown_server(self):
+        if self.server is not None:
+            self.server.terminate()
+            self.server.join()
+
+# define Flask routes
+@app.route("/")
+def home():
+    return "Hello, this is your local server!"
