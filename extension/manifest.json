@@ -1,22 +1,31 @@
 {
-	"manifest_version": 2,
-	"name": "Borderify",
+	"manifest_version": 3,
+	"name": "AutoFill Extension",
 	"version": "1.0",
 
-	"description": "Something",
+	"description": "Automatically fills login forms with saved credentials.",
 
 	"icons": {
 		"48": "icons/border-48.png"
 	},
 
 	"permissions": [
-		"http://127.0.0.1:5000/*",
 		"activeTab"
 	],
 
-	"browser_action": {
-		"default_icon": "icons/beasts-32.png",
-		"default_title": "Borderify",
+	"action": {
 		"default_popup": "popup/popup.html"
-	}
+	},
+
+	"content_scripts": [
+		{
+		  	"matches": ["<all_urls>"],
+		  	"js": ["content.js"],
+		  	"run_at": "document_idle"
+		}
+	],
+
+	"host_permissions": [
+		"http://127.0.0.1:5000/*"
+	]
 }

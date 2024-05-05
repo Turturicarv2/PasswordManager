@@ -4,11 +4,14 @@ import requests
 from password_table import PasswordTable
 from settings import *
 from urllib.parse import urlparse
-from flask import Flask, request
-import threading
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from multiprocessing import Process
 
 app = Flask(__name__)
+CORS(app)
+
+credentials = []
 
 class Home(ttk.Toplevel):
     def __init__(self, main_window, user_id):
@@ -207,4 +210,22 @@ class Home(ttk.Toplevel):
 # define Flask routes
 @app.route("/")
 def home():
-    return "Hello, this is your local server!"
+    return {"success": True}
+
+@app.route('/save_password/', methods=['POST'])
+def save_password():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if username and password:
+        credentials['username'] = username
+        credentials['password'] = password
+        return jsonify({'message': 'Credentials saved successfully'}), 200
+    else:
+        return jsonify({'error': 'Invalid data'}), 400
+
+# Endpoint to retrieve username and password
+@app.route('/get_password/')
+def get_password():
+    return jsonify(credentials)
