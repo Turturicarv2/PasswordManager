@@ -89,14 +89,17 @@ class signup_page(ttk.Toplevel):
         elif not password_valid:
             Messagebox.show_error(password_error_message, title = 'Error', parent = self, alert=True)
         else:
+            hashed_password = hash_password(password)
             url = server_url + "create_user/"
 
             # Adding a payload
-            payload = {"username": username, "email": email, "password": password}
+            payload = {"username": username, "email": email, "password": hashed_password}
 
             # A get request to the server
             connection = requests.post(url, params = payload)
             response = connection.json()
+
+            print(response)
 
             if response['success'] == True:
                 # TODO: Add some sort of success message

@@ -55,18 +55,15 @@ def select_all_pwd():
 
 @app.route('/update_pwd/', methods = ['PUT'])
 def update_pwd():
-    id_master_user = request.args.get('id_user')
-    url_path = request.args.get('url_path')
+    password_id = request.args.get('password_id')
     username = request.args.get('username')
-    new_password = request.args.get('new_password')
-    return execute_sql_update_pwd(id_master_user=id_master_user, url_path=url_path, username=username, new_password=new_password)
+    new_password = request.args.get('password')
+    return execute_sql_update_pwd(id_password = password_id, username=username, new_password=new_password)
 
 @app.route('/delete_pwd/', methods = ['DELETE'])
 def delete_pwd():
-    id_master_user = request.args.get('id_user')
-    url_path = request.args.get('url_path')
-    execute_sql_delete_pwd(id_master_user=id_master_user, url_path=url_path, username=username)
-    return
+    password_id = request.args.get('password_id')
+    return execute_sql_delete_pwd(password_id)
 
 @app.route('/create_user/', methods = ['POST'])
 def create_user():

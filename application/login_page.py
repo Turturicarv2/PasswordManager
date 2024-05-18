@@ -67,10 +67,12 @@ class login_page(ttk.Toplevel):
         username = self.username_entry.get()
         password = self.password_entry.get()
 
+        hashed_password = hash_password(password)
+
         url = server_url + "authenticate_user/"
 
         # Adding a payload
-        payload = {"usermail": username, "password": password}
+        payload = {"usermail": username, "password": hashed_password}
 
         # A get request to the server
         connection = requests.get(url, params = payload)

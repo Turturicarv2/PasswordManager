@@ -167,28 +167,33 @@ class Home(ttk.Toplevel):
         username = user_entry.get()
         password = password_entry.get()
         website = website_entry.get()
-        
+
         # Extracting the domain name from the website URL
         parsed_url = urlparse(website)
         domain = parsed_url.netloc
+
+        key = str(self.user_id)
+        encrypted_password = encrypt_aes(key, password)
+        encrypted_username = encrypt_aes(key, username)
+        encrypted_website = encrypt_aes(key, domain)
         
         # Sending only the domain to the server
-        params = {"id_user": self.user_id, "url_path": domain, "username": username, "password": password}
+        params = {"id_user": self.user_id, "url_path": encrypted_website, "username": encrypted_username, "password": encrypted_password}
 
         requests.post(url, params=params)
         window.destroy()
 
     def update_password(self):
-        add_password_window = ttk.Toplevel()
-        ttk.Label(master = add_password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
+        password_window = ttk.Toplevel()
+        ttk.Label(master = password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
 
-        PasswordTable(master=add_password_window, rowdata=self.result, use = 'update', user_id=self.user_id, window=add_password_window).pack()
+        PasswordTable(master= password_window, rowdata=self.result, use = 'update', user_id=self.user_id, window= password_window).pack()
 
     def delete_password(self):
-        add_password_window = ttk.Toplevel()
-        ttk.Label(master = add_password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
+        password_window = ttk.Toplevel()
+        ttk.Label(master = password_window, text='Update a password:', bootstyle = 'PRIMARY').pack(pady = 10)
 
-        PasswordTable(master=add_password_window, rowdata=self.result, use = 'delete', user_id=self.user_id, window=add_password_window).pack()
+        PasswordTable(master=password_window, rowdata=self.result, use = 'delete', user_id=self.user_id, window= password_window).pack()
 
     def logout(self):
         self.shutdown_server()
@@ -225,7 +230,6 @@ def save_password():
     else:
         return jsonify({'error': 'Invalid data'}), 400
 
-# Endpoint to retrieve username and password
 @app.route('/get_password/')
 def get_password():
     return jsonify(credentials)

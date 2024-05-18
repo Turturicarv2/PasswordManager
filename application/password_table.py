@@ -21,7 +21,12 @@ class PasswordTable(tk.Frame):
         ttk.Label(self, text="Password").grid(row=0, column=2, padx=5, pady=5)
         
         for i, data in enumerate(processed_list, start=1):
-            website, username, password = data
+            encrypted_website, encrypted_username, encrypted_password = data
+
+            key = str(self.user_id)
+            username = decrypt_aes(key, encrypted_username)
+            password = decrypt_aes(key, encrypted_password)
+            website = decrypt_aes(key, encrypted_website)
             
             # Website label
             ttk.Label(self, text=website).grid(row=i, column=0, padx=5, pady=5)
@@ -73,7 +78,12 @@ class PasswordTable(tk.Frame):
         url = server_url + "update_pwd/"
         username = user_entry.get()
         password = password_entry.get()
-        params = {"username": username, "password": password, "password_id": password_id}
+
+        key = str(self.user_id)
+        encrypted_password = encrypt_aes(key, password)
+        encrypted_username = encrypt_aes(key, username)
+        
+        params = {"username": encrypted_username, "password": encrypted_password, "password_id": password_id}
 
         connection = requests.put(url, params=params)
         response = connection.json()
