@@ -1,44 +1,39 @@
-// content.js
+document.addEventListener('focusin', function(event) {
+  const field = event.target;
+  if (field.tagName.toLowerCase() === 'input' && field.type === 'password') {
+    const url = window.location.href;
+    chrome.runtime.sendMessage({ action: 'fetchCredentials', url }, (data) => {
+      if (data && !data.error) {
+        const form = field.closest('form');
+        const usernameField = form.querySelector('input[type="text"]');
+        if (usernameField && data.username) {
+          usernameField.value = data.username;
+        }
+        if (data.password) {
+          field.value = data.password;
+        }
+      } else {
+        console.error('Failed to fetch credentials:', data.error);
+      }
+    });
+  }
+});
 
-// Listen for focus or load events on input fields
-document.addEventListener('focusin', async function(event) {
-    const field = event.target;
-    if (field.tagName.toLowerCase() === 'input' && field.type === 'password') {
-      // Send a request to the server to retrieve credentials
-      try {
-        const response = await fetch('http://127.0.0.1:5000/get_password/');
-        const data = await response.json();
-  
-        // Autofill the password field
-        field.value = data.password;
-      } catch (error) {
-        console.error('Error fetching password:', error);
+document.addEventListener('submit', function(event) {
+  const form = event.target;
+  const usernameField = form.querySelector('input[type="text"]');
+  const passwordField = form.querySelector('input[type="password"]');
+
+  if (usernameField && passwordField) {
+    const url = window.location.href;
+    const username = usernameField.value;
+    const password = passwordField.value;
+    chrome.runtime.sendMessage({ action: 'saveCredentials', url, username, password }, (response) => {
+      if (response && response.success) {
+        console.log('Credentials saved successfully');
+      } else {
+        console.error('Failed to save credentials:', response.error);
       }
-    }
-  });
-  
-  // Listen for form submission events
-  document.addEventListener('submit', async function(event) {
-    const form = event.target;
-    const usernameField = form.querySelector('input[type="text"]');
-    const passwordField = form.querySelector('input[type="password"]');
-  
-    // Check if the form has both username and password fields
-    if (usernameField && passwordField) {
-      // Send the username and password to the server
-      const username = usernameField.value;
-      const password = passwordField.value;
-      try {
-        await fetch('http://127.0.0.1:5000/save_password/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password })
-        });
-      } catch (error) {
-        console.error('Error saving credentials:', error);
-      }
-    }
-  });
-  
+    });
+  }
+});

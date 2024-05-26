@@ -1,31 +1,28 @@
 {
-	"manifest_version": 3,
+	"manifest_version": 2,
 	"name": "AutoFill Extension",
 	"version": "1.0",
-
 	"description": "Automatically fills login forms with saved credentials.",
-
 	"icons": {
 		"48": "icons/border-48.png"
 	},
-
 	"permissions": [
-		"activeTab"
+		"activeTab",
+		"webRequest",
+		"webRequestBlocking",
+		"<all_urls>"
 	],
-
-	"action": {
+	"browser_action": {
 		"default_popup": "popup/popup.html"
 	},
-
 	"content_scripts": [
 		{
-		  	"matches": ["<all_urls>"],
-		  	"js": ["content.js"],
-		  	"run_at": "document_idle"
+			"matches": ["<all_urls>"],
+			"js": ["content.js"],
+			"run_at": "document_idle"
 		}
 	],
-
-	"host_permissions": [
-		"http://127.0.0.1:5000/*"
-	]
+	"background": {
+		"scripts": ["background.js"]
+	}
 }

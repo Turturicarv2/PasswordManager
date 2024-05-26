@@ -9,8 +9,9 @@ from flask_cors import CORS
 from multiprocessing import Process
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
+server_user_id = 1
 credentials = []
 
 class Home(ttk.Toplevel):
@@ -18,7 +19,10 @@ class Home(ttk.Toplevel):
         # setup
         self.main_window = main_window
         super().__init__()
-        self.user_id = user_id
+        if user_id:
+            global server_user_id
+            server_user_id = user_id
+            self.user_id = user_id
         self.title('Home')
         self.minsize(width=900, height=600)
 
@@ -90,6 +94,9 @@ class Home(ttk.Toplevel):
         response = connection.json()
 
         self.result = response.get('result')
+
+        global credentials
+        credentials = self.result
 
         password_actions_frame = ttk.Frame(master=self.password_frame)
 
@@ -222,14 +229,62 @@ def save_password():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    website = data.get('url')
 
-    if username and password:
-        credentials['username'] = username
-        credentials['password'] = password
+    # Extracting the domain name from the website URL
+    parsed_url = urlparse(website)
+    domain = parsed_url.netloc
+
+    if username and password and website:
+
+        for credential in credentials:
+            encrypted_username = credential[3]
+            encrypted_website = credential[2]
+            
+            key = str(server_user_id)
+            stored_username = decrypt_aes(key, encrypted_username)
+            stored_website = decrypt_aes(key, encrypted_website)
+
+            if stored_website == domain and stored_username == username:
+                return jsonify({'message': 'Credentials already saved'}), 200
+
+        url = server_url + "store_pwd/"
+
+        key = str(server_user_id)
+        encrypted_password = encrypt_aes(key, password)
+        encrypted_username = encrypt_aes(key, username)
+        encrypted_website = encrypt_aes(key, domain)
+        
+        # Sending only the domain to the server
+        params = {"id_user": server_user_id, "url_path": encrypted_website, "username": encrypted_username, "password": encrypted_password}
+
+        requests.post(url, params=params)
+        
         return jsonify({'message': 'Credentials saved successfully'}), 200
     else:
         return jsonify({'error': 'Invalid data'}), 400
 
-@app.route('/get_password/')
+@app.route('/get_password/', methods=['POST'])
 def get_password():
-    return jsonify(credentials)
+    try:
+        data = request.json
+        url = data.get('url')
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc
+        for credential in credentials:
+            encrypted_username = credential[3]
+            encrypted_password = credential[4]
+            encrypted_website = credential[2]
+            
+            key = str(server_user_id)
+            username = decrypt_aes(key, encrypted_username)
+            password = decrypt_aes(key, encrypted_password)
+            website = decrypt_aes(key, encrypted_website)
+
+            json_return = {'username': username, 'password': password}
+            if domain in website or website in domain:
+                return json_return
+        return jsonify({'username': '', 'password': ''}), 404
+    except Exception as e:
+        print(f"Error in get_password endpoint: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500

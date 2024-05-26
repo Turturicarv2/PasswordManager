@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(data => {
       if (data.success === true) {
-        statusElement.textContent = 'Password manager up and running';
+        statusElement.textContent = 'Logged in';
       } else {
-        statusElement.textContent = 'Open your password manager';
+        statusElement.textContent = 'Log into your password manager';
       }
     })
     .catch(error => {
       console.error('Error:', error);
-      statusElement.textContent = 'Open your password manager';
+      statusElement.textContent = 'Error';
     });
 });
