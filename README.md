@@ -1,3 +1,4 @@
 # PasswordManager
-Basic password manager application to gather knowledge in the cybersecurity field, web development and application development.
+Basic password manager application that saves your passwords.
+Comes with a web extenstion that will autofill your passwords on websites
 
